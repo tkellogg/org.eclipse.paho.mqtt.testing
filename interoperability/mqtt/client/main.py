@@ -63,11 +63,13 @@ class Callback:
 
 class Client:
 
-  def __init__(self, clientid):
+  def __init__(self, clientid, host="localhost", port=1883):
     self.clientid = clientid
     self.msgid = 1
     self.callback = None
     self.__receiver = None
+    self.host = host
+    self.port = port
 
 
   def __nextMsgid(self):
@@ -90,12 +92,12 @@ class Client:
     self.callback = callback
 
 
-  def connect(self, host="localhost", port=1883, cleansession=True, keepalive=0, newsocket=True, protocolName=None,
+  def connect(self, cleansession=True, keepalive=0, newsocket=True, protocolName=None,
               willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False, username=None, password=None):
     if newsocket:
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       self.sock.settimeout(.5)
-      self.sock.connect((host, port))
+      self.sock.connect((self.host, self.port))
 
     connect = MQTTV3.Connects()
     connect.ClientIdentifier = self.clientid
@@ -219,13 +221,13 @@ if __name__ == "__main__":
 
   callback = Callback()
 
-  aclient = Client("myclientid")
+  aclient = Client("myclientid", port=1884)
   aclient.registerCallback(callback)
 
-  aclient.connect(port=1884)
+  aclient.connect()
   aclient.disconnect()
 
-  aclient.connect(port=1884)
+  aclient.connect()
   aclient.subscribe(["k"], [2])
   aclient.publish("k", "qos 0")
   aclient.publish("k", "qos 1", 1)

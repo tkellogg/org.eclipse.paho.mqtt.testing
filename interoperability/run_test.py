@@ -41,17 +41,17 @@ def cleanup(hostname="localhost", port=1883):
                  "A clientid that is longer than 23 chars - should work in 3.1.1")
 
 	for clientid in clientids:
-		aclient = mqtt.client.Client("myclientid".encode("utf-8"))
-		aclient.connect(host=hostname, port=port, cleansession=True)
+		aclient = mqtt.client.Client("myclientid".encode("utf-8"), host=hostname, port=port, )
+		aclient.connect(cleansession=True)
 		time.sleep(.1)
 		aclient.disconnect()
 		time.sleep(.1)
 
 	# clean retained messages 
 	callback = client_test.Callbacks()
-	aclient = mqtt.client.Client("clean retained".encode("utf-8"))
+	aclient = mqtt.client.Client("clean retained".encode("utf-8"), host=hostname, port=port)
 	aclient.registerCallback(callback)
-	aclient.connect(host=hostname, port=port, cleansession=True)
+	aclient.connect(cleansession=True)
 	aclient.subscribe(["#"], [0])
 	time.sleep(2) # wait for all retained messages to arrive
 	for message in callback.messages:  
@@ -66,15 +66,15 @@ def cleanup(hostname="localhost", port=1883):
 
 if __name__ == "__main__":
 	try:
-		opts, args = getopt.gnu_getopt(sys.argv[1:], "t:d:h:p:", ["testname=", "testdir=", "testdirectory=", "hostname=", "port="])
+		opts, args = getopt.gnu_getopt(sys.argv[1:], "t:d:h:p:", ["testname=", "testdir=", "testdirectory=", "hostname=", "port=", "hostname2=", "port2="])
 	except getopt.GetoptError as err:
 		print(err) # will print something like "option -a not recognized"
 		usage()
 		sys.exit(2)
 
 	testname = testdirectory = None
-	hostname = "localhost"
-	port = 1883
+	hostname = hostname2 = "localhost"
+	port = port2 = 1883
 	for o, a in opts:
 		if o in ("--help"):
 			usage()
@@ -85,8 +85,12 @@ if __name__ == "__main__":
 			testdirectory = a
 		elif o in ("-h", "--hostname"):
 			hostname = MQTTV311_spec.hostname = a
+		elif o in ("--hostname2"):
+			hostname2 = MQTTV311_spec.hostname = a
 		elif o in ("-p", "--port"):
 			port = MQTTV311_spec.port = int(a)
+		elif o in ("--port2"):
+			port2 = MQTTV311_spec.port = int(a)
 		else:
 			assert False, "unhandled option"
 

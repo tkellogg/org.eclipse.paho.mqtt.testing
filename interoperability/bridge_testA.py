@@ -56,17 +56,17 @@ def cleanup():
   port = 1883 
 
   for clientid in clientids:
-    aclient = mqtt.client.Client("myclientid".encode("utf-8"))
-    aclient.connect(host=hostname, port=port, cleansession=True)
+    aclient = mqtt.client.Client("myclientid".encode("utf-8"), host=hostname, port=port)
+    aclient.connect(cleansession=True)
     time.sleep(.1)
     aclient.disconnect()
     time.sleep(.1)
 
   # clean retained messages 
   callback = Callbacks()
-  aclient = mqtt.client.Client("clean retained".encode("utf-8"))
+  aclient = mqtt.client.Client("clean retained".encode("utf-8"), host=hostname, port=port)
   aclient.registerCallback(callback)
-  aclient.connect(host=hostname, port=port, cleansession=True)
+  aclient.connect(cleansession=True)
   aclient.subscribe(["#"], [0])
   time.sleep(2) # wait for all retained messages to arrive
   for message in callback.messages:  
@@ -117,12 +117,12 @@ if __name__ == "__main__":
   
   callback = Callbacks()
 
-  aclient = mqtt.client.Client("Bridge_test_A".encode("utf-8"))
+  aclient = mqtt.client.Client("Bridge_test_A".encode("utf-8"), host=host, port=port)
   aclient.registerCallback(callback)
 
   # test 1 basic messages
 
-  aclient.connect(host=host, port=port)
+  aclient.connect()
 
   aclient.publish("bridged/k", b"1 test start")
   aclient.publish("bridged/k", b"qos 0")
